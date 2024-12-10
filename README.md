@@ -33,12 +33,14 @@ Container config issues with deployment for:
 
 ## Lets get started!
 **NOTE** - Please change naming of files and dir for security reasons.
+<details>
+<summary>Step 1 - Setting up Docker</summary>
 
-### Step 1 - Docker Setup
 1.1 Update package list 
 ```
  sudo apt update
 ```
+
 1.2. Install prerequisites
 ```
  sudo apt install -y ca-certificates curl gnupg
@@ -49,19 +51,23 @@ Container config issues with deployment for:
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 ```
+
 1.4. Setup Docker repo
 ```
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
+
 1.5. Install docker engine
 ```
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
+
 1.6. Verify Installation
 ```
  docker --version
 ```
+
 1.7. Install software packages on docker
 ```
 docker pull jellyfin/jellyfin:latest
@@ -71,17 +77,23 @@ docker pull lscr.io/linuxserver/radarr:latest
 docker pull lscr.io/linuxserver/qbittorrent:latest
 docker pull kylemanna/openvpn-client:latest
 ```
+
 1.8. Confirm pulled images
 ```
 docker images
 ```
+</details>
 
-### Step 2 - Mount Synology NAS to Server
+<details>
+
+<summary>Step 2 - Mount Synology NAS to Server</summary>
+
 2.1. Installing 'cifs-utils' for SMB support in files sharing with the NAS.
 ```
  sudo apt install -y cifs-utils
 
 ```
+
 2.2. Creating the Mount Points
 ```
 sudo mkdir -p /mount/NAS_Server/Movies
@@ -101,6 +113,7 @@ sudo mount -t cifs //NAS_IP/NAS_Server/Shows /mount/NAS_Server/Shows -o username
 
 sudo mount -t cifs //NAS_IP/NAS_Server/Download /mount/NAS_Server/Download -o username=your_username,password=your_password
 ```
+
 2.4 Verify the Mounts are Present
 ```
 df -h
@@ -140,8 +153,11 @@ ls /mount/NAS_Server/Download
 sudo chmod -R 755 /mount/NAS_Server
 sudo chown -R $USER:$USER /mount/NAS_Server
 ```
+</details>
 
-### Step 3 - Deploy Jellyfin Pipeline Containers
+<details>
+
+<summary> Step 3 - Deploy Jellyfin Pipeline Containers </summary>
 We will use a docker-compose.yml file to simplify the deployment and management of all containers. 
 Using Compose ensures that all container settings, volumes, and dependencies are centrally managed.
 
@@ -150,7 +166,7 @@ Using Compose ensures that all container settings, volumes, and dependencies are
 sudo -p mkdir ~/container-pipeline/ && cd ~/container-pipeline/
 ```
 
-3.2. Install docker-compose 
+**3.2. Install docker-compose**
 ```
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
@@ -167,13 +183,13 @@ pull required images
 sudo docker-compose pull
 ```
 
-3.3. Create docker-compose file
+**3.3. Create docker-compose file**
 Docker-compose file is used when a docker container is deployed as it houses all the container's configuration.  
-
 ```
 sudo nano docker-compose.yml
 ```
-Content of 'docker-compose':
+
+**Content of docker-compose**: Copy and paste the content and adjust the volume pathing to your setup.
 ```
 version: "3.8"
 
@@ -267,23 +283,23 @@ services:
       - TZ=Australia/Sydney
 ```
 
-3.4. Deploying the containers
+**3.4. Deploying the containers**
 ```
 sudo docker-compose up -d 
 ```
-**Some tips for troubleshooting:**
 
+**Some tips for troubleshooting:**
 Check on status of containers
 ```
 sudo docker ps
 ```
-check logs of a container 
+
+Check logs of a container
 ```
 sudo docker logs container_name
 ```
 
-
-3.5. Permission for containers to read, write, and execute
+**3.5. Permission for containers to read, write, and execute**
 **Container Default User** is '1000:1000' 
 **775** - 7-owner, 7-groups, 5-others, where **7**=can read, write, & exe while **5**=read and exe only
 ```
@@ -292,15 +308,13 @@ sudo chown -R 1000:1000 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/
 sudo chmod -R 775 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/NAS_Server/Download
 
 ```
-
+</details>
 
 ### Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, & Radarr
 
 ### Step 5 - Security
 - fail2ban 
 - nginx and certbot setup
-
-### Adding (Optional)
 
 ### Step 6 - Remote Access (WIP)
 - nginx 
