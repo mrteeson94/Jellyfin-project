@@ -36,39 +36,39 @@ Container config issues with deployment for:
 <details>
 <summary>Step 1 - Setting up Docker</summary>
 
-1.1 Update package list 
+**1.1 Update package list**
 ```
  sudo apt update
 ```
 
-1.2. Install prerequisites
+**1.2. Install prerequisites**
 ```
  sudo apt install -y ca-certificates curl gnupg
 ```
 
-1.3. Adding Docker's official GPG key
+**1.3. Adding Docker's official GPG key**
 ```
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 ```
 
-1.4. Setup Docker repo
+**1.4. Setup Docker repo**
 ```
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-1.5. Install docker engine
+**1.5. Install docker engine**
 ```
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-1.6. Verify Installation
+**1.6. Verify Installation**
 ```
  docker --version
 ```
 
-1.7. Install software packages on docker
+**1.7. Install software packages on docker**
 ```
 docker pull jellyfin/jellyfin:latest
 docker pull lscr.io/linuxserver/prowlarr:latest
@@ -78,7 +78,7 @@ docker pull lscr.io/linuxserver/qbittorrent:latest
 docker pull kylemanna/openvpn-client:latest
 ```
 
-1.8. Confirm pulled images
+**1.8. Confirm pulled images**
 ```
 docker images
 ```
@@ -88,20 +88,20 @@ docker images
 
 <summary>Step 2 - Mount Synology NAS to Server</summary>
 
-2.1. Installing 'cifs-utils' for SMB support in files sharing with the NAS.
+**2.1. Installing 'cifs-utils' for SMB support in files sharing with the NAS.**
 ```
  sudo apt install -y cifs-utils
 
 ```
 
-2.2. Creating the Mount Points
+**2.2. Creating the Mount Points**
 ```
 sudo mkdir -p /mount/NAS_Server/Movies
 sudo mkdir -p /mount/NAS_Server/Shows
 sudo mkdir -p /mount/NAS_Server/Download
 ```
 
-2.3. Mount the NAS
+**2.3. Mount the NAS**
 **NOTE**
 NAS_IP= your external storage device private IPv4
 your_username & your_password = local user/admin credentials of the storage device
@@ -119,7 +119,7 @@ sudo mount -t cifs //NAS_IP/NAS_Server/Download /mount/NAS_Server/Download -o us
 df -h
 ```
 
-2.5 Persist Mounts across Reboots
+**2.5 Persist Mounts across Reboots**
 edit the 'fstab.bak' file to automatically mount the fodlers after a reboot of the server. 
 ```
  sudo cp /etc/fstab /etc/fstab.bak
@@ -148,7 +148,7 @@ ls /mount/NAS_Server/Shows
 ls /mount/NAS_Server/Download
 ```
 
-2.7. Permission Update on Mounts
+**2.7. Permission Update on Mounts**
 ```
 sudo chmod -R 755 /mount/NAS_Server
 sudo chown -R $USER:$USER /mount/NAS_Server
@@ -161,7 +161,7 @@ sudo chown -R $USER:$USER /mount/NAS_Server
 We will use a docker-compose.yml file to simplify the deployment and management of all containers. 
 Using Compose ensures that all container settings, volumes, and dependencies are centrally managed.
 
-3.1. Create container directory and open dir
+**3.1. Create container directory and open dir**
 ```
 sudo -p mkdir ~/container-pipeline/ && cd ~/container-pipeline/
 ```
