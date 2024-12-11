@@ -312,13 +312,139 @@ sudo chmod -R 775 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/NAS_Se
 
 <details>
   <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, & Radarr</summary>
+
+**4.1 Set up qBittorrent** 
+qBittorrent container running for the first time will generate a random password for the container. - To see both the username and password details for qbittorrent follow the steps below.
+```
+docker logs <container_name> #example docker logs qbittorrent
+```
+
+**4.1.2 Qbittorrent login and change password**
+```
+http://<server_IP>:8080
+```
+Once logged in, navigate to option -> WebUI -> Authentication tab - include username and new password details. Hit Save located at the bottom of the prompt!
+
+**4.2 Setting up Jellyfin app**
+```
+http://<server_IP>:8096
+```
+Follow the prompts and add in your mounts which will appear as /movies and /shows in the current displayed directory.
+
+Test Jellyfin on your Smart TV by installing the Jellyfin app and pointing it to the local server IP.
+
+**4.3 Setting up Prowlarr**
+```
+http://<server_IP>:9696
+```
+**4.3.1 Create your username and password**
+
+**4.3.1 Linking with Radarr, Sonarr**
+Settings -> Select Apps -> Add (Radarr and Sonarr) -> fill the following fields:
+* Authentication : Forms (login page)
+* Server address = url with the port eg. 192.168.1.2:8989 (Radarr).
+* API keys= API keys can be found in settings/General in the respective apps.
+
+**4.3.2 Linking to qbittorrent**
+Settings/Download Clients -> Select qbittorrent -> include the following:
+* Host = linux server
+* Port = default is 8080 
+* Username = qbittorrent user 
+* Password = qbittorrent password
+
+**4.4 Setting up Radarr and Sonarr**
+Both services' setup will be identical so I will only focus on Sonarr here.
+```
+http://<server_IP>:7878 # Radarr
+http://<server_IP>:8989 # Sonarr
+```
+
+**4.4.1 Adding Root folder and setup login page**
+Within Settings/Media Management -> Root folders (add Root Folder) → in the main directory opened, select /movies.
+General settings - within the Authentication field select Forms (login page).
+
+**4.4.2 Adding Download Clients (qBittorrent)**
+Under Download Clients select the add icon -> select qBittorrent -> fill the following fields:
+* Host = linux server
+* Port = default is 8080 
+* Username = qbittorrent user 
+* Password = qbittorrent password
+* Hit the test button and then Save. 
+**Note**: Any error displayed will indicate which field(s) you have incorrectly filled out and will be useful for troubleshooting. 
+
+**Troubleshooting**
+If there are permission issues with accessing root folders, try the following:
+**1. Does the container user have same permission as host user?**
+* open and edit your Docker-compose.yml file.
+* Within the service sector **add user : "1000:1000"** to set container user to host admin and match same permissions to read, write or execute.
+**NOTE** - defualt user ID is 1000 (most admins).
+*Example*
+```
+homarr: 
+container_name: homarr 
+image: ghcr.io/ajnart/homarr:latest 
+restart: unless-stopped 
+volumes: 
+- /var/run/docker.sock:/var/run/docker.sock
+user: "1000:1000" #included user field to now update container user to admin host.
+```
+
+**2. Mounted volumes may still have root modify and exe only permission:**
+* Check the mounted volumes permission
+```
+ls -l /mount/NAS_Server/Download
+```
+if your user/admin name doesnt appear and **root** is present you will need to use the following CLI and include only the affected paths mounted to the container
+
+```
+~$sudo chown -R 1000:1000 /mount/NAS_Server/Download # Change ownership to linux user with user ID 1000 for that dir
+
+~$sudo chmod -R 775 /mount/NAS_Server/Download #ensure access permission granted to the dir
+```
 </details>
 
 <details>
   <summary>Step 5 - Security</summary>
+**5.1 Firewall setup**
+
+Firewall Configuration
+Install ufw (Uncomplicated Firewall):
+```
+sudo apt update
+sudo apt install ufw
+```
+
+Allow Only Required Ports:
+```
+sudo ufw allow 22/tcp   # For SSH
+sudo ufw allow 80/tcp # For HTTP
+sudo ufw allow 443/tcp # For HTTPS
+sudo ufw allow 8096/tcp # Jellyfin
+sudo ufw allow 9696/tcp # prowlarr
+sudo ufw allow 8989/tcp # radarr
+sudo ufw allow 7878/tcp # sonarr
+sudo ufw allow 7575/tcp # homarr
+sudo ufw allow 8080/tcp # qBittorrent
+sudo ufw allow 6881/udp # qBittorrent
+sudo ufw allow 1194/udp # OpenVPN
+sudo ufw enable
+```
+
+Check Firewall Status:
+```
+sudo ufw status
+```
+
+
+**5.2 fail2ban setup (WIP)**
+
+
+**5.3 nginx and certbot setup (WIP)**
+
+
+
 </details>
-- fail2ban 
-- nginx and certbot setup
+
 <details>
   <summary>Step 6 - Remote Access (WIP)</summary>
 - nginx 
