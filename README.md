@@ -310,13 +310,18 @@ sudo chmod -R 775 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/NAS_Se
 ```
 </details>
 
-### Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, & Radarr
+<details>
+  <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, & Radarr</summary>
+</details>
 
-### Step 5 - Security
+<details>
+  <summary>Step 5 - Security</summary>
+</details>
 - fail2ban 
 - nginx and certbot setup
-
-### Step 6 - Remote Access (WIP)
+<details>
+  <summary>Step 6 - Remote Access (WIP)</summary>
 - nginx 
 - certbot
 - duckdns
+</details>
