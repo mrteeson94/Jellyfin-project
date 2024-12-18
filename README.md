@@ -394,7 +394,7 @@ user: "1000:1000" #included user field to now update container user to admin hos
 ```
 ls -l /mount/NAS_Server/Download
 ```
-if your user/admin name doesnt appear and **root** is present you will need to use the following CLI and include only the affected paths mounted to the container
+If your user/admin name doesnt appear and **root** is present you will need to use the following CLI and include only the affected paths mounted to the container
 
 ```
 ~$sudo chown -R 1000:1000 /mount/NAS_Server/Download # Change ownership to linux user with user ID 1000 for that dir
@@ -405,6 +405,7 @@ if your user/admin name doesnt appear and **root** is present you will need to u
 
 <details>
   <summary>Step 5 - Security</summary>
+
 **5.1 Firewall setup**
 
 Firewall Configuration
@@ -447,7 +448,7 @@ sudo ufw status
 
 <details>
   <summary>Step 6 - Remote Access (WIP)</summary>
-- nginx 
-- certbot
-- duckdns
+* nginx 
+* certbot
+* duckdns
 </details>
