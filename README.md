@@ -202,6 +202,7 @@ services:
     volumes:
       - /mount/Movies:/media/movies:ro
       - /mount/NAS_Server/Shows:/media/shows:ro
+      - ~/jellyfin-pipeline/jellyfin-config:/config   # <-- To persist user details
     restart: unless-stopped
     environment:
       - TZ=Australia/Sydney
@@ -436,18 +437,68 @@ Check Firewall Status:
 sudo ufw status
 ```
 
-
 **5.2 fail2ban setup (WIP)**
 
-
 **5.3 nginx and certbot setup (WIP)**
-
-
 
 </details>
 
 <details>
-  <summary>Step 6 - Remote Access (WIP)</summary>
+  <summary>Step 6 - Updating Container Images</summary>
+
+**6.1 Pulling in updates for Containers**
+Overtime the software will require updates, apply the following command to download the update for the container without stopping it:
+
+```
+cd ~/container-pipeline
+sudo docker-compose pull radarr sonarr prowlarr jellyfin
+
+```
+
+**6.2 Restarting with the updated image**
+
+Restart the containers to apply the latest image version(this will stop affected services):
+```
+sudo docker-compose up -d radarr sonarr prowlarr jellyfin
+docker ps
+```
+
+**6.3 Watchtower Setup for automation (Optional & WIP):**
+
+WatchTower - Checks for updated docker images, gracefully shuts down running containers and restarts them while preserving all data and config.
+Apply the following to your docker-compose file:
+```
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=Australia/Sydney
+      - WATCHTOWER_POLL_INTERVAL=21600  # Checks every 6 hours (21600 seconds)/change this to your preference
+      - WATCHTOWER_CLEANUP=true         # Auto remove old images
+```
+*NOTE:*
+*docker.sock: Lets Watchtower control other containers
+*WATCHTOWER_POLL_INTERVAL: Frequency it checks for updates
+*WATCHTOWER_CLEANUP: Automatically removes old versions after updating
+*TZ: Ensures logs use your local time
+
+**Execute Watchtower container**
+```
+cd ~/container-pipeline
+sudo docker-compose up -d watchtower
+```
+**Optional Commands:**
+```
+sudo docker exec watchtower watchtower --run-once #To test first before committing. 
+sudo docker logs -f watchtower #To view log files from this container.
+```
+</details>
+
+<details>
+  <summary>Step 7 - Remote Access (WIP)</summary>
 * nginx 
 * certbot
 * duckdns
