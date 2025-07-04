@@ -480,10 +480,10 @@ Apply the following to your docker-compose file:
       - WATCHTOWER_CLEANUP=true         # Auto remove old images
 ```
 *NOTE:*
-*docker.sock: Lets Watchtower control other containers
-*WATCHTOWER_POLL_INTERVAL: Frequency it checks for updates
-*WATCHTOWER_CLEANUP: Automatically removes old versions after updating
-*TZ: Ensures logs use your local time
+* docker.sock: Lets Watchtower control other containers
+* WATCHTOWER_POLL_INTERVAL: Frequency it checks for updates
+* WATCHTOWER_CLEANUP: Automatically removes old versions after updating
+* TZ: Ensures logs use your local time
 
 **Execute Watchtower container**
 ```
