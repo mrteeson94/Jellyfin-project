@@ -495,6 +495,22 @@ sudo docker-compose up -d watchtower
 sudo docker exec watchtower watchtower --run-once #To test first before committing. 
 sudo docker logs -f watchtower #To view log files from this container.
 ```
+**6.4 Mount missing Jellyfin docker due to NAS reboots (power outage experience):**
+
+WatchTower - On power outage from natural cause or NBN technicans, I have to manually mount my NAS drives back to the server.
+Apply the following in your jellyfin-pipeline folder:
+```
+ping 192.168.1.100                   # NAS_IPv4 
+df -h | grep Media                   # Verify if the mounts are present on your server
+cat /etc/fstab | grep -i media       # Verify if fstab config file is presesnt
+sudo mkdir -p /mnt/Media_Server/Movies /mnt/Media_Server/Shows /mnt/Media_Server/Download      # creates mount points that has been mapped in docker-compose
+sudo mount -a                        # Mounts all drives defined in /fstab
+df -h | grep Media                   # To verify mounts are present
+docker compose restart jellyfin      # Restart your jellyfin container which should now have access to the Media files in your NAS
+```
+*NOTE:*
+* docker.sock: Lets Watchtower control other containers
+
 </details>
 
 <details>
