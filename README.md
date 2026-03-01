@@ -282,6 +282,21 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Australia/Sydney
+      
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    ports:
+      - "6767:6767"
+    volumes:
+      - ~/jellyfin-pipeline/bazarr:/config
+      - /mnt/Media_Server/Shows:/shows
+      - /mnt/Media_Server/Movies:/movies
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
 ```
 
 **3.4. Deploying the containers**
@@ -312,7 +327,7 @@ sudo chmod -R 775 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/NAS_Se
 </details>
 
 <details>
-  <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, & Radarr</summary>
+  <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, Radarr, & Bazarr</summary>
 
 **4.1 Set up qBittorrent** 
 qBittorrent container running for the first time will generate a random password for the container. - To see both the username and password details for qbittorrent follow the steps below.
