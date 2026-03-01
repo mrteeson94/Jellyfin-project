@@ -28,7 +28,9 @@ Container config issues with deployment for:
 * nginx - mime.types syntax issue
 * Certbot - [Errno 13] Permission denied: '/var/log/letsencrypt/.certbot.lock
 
-**Current status of project**: Able to stream within local network only, until nginx and certbot issue is resolved. 
+**Current status of project**: 
+* Able to stream within local network only, until nginx and certbot issue is resolved. 
+* 2026 - Added Bazarr to automate ENG subtitles for all movies & shows.
 
 
 ## Lets get started!
@@ -304,7 +306,7 @@ services:
 sudo docker-compose up -d 
 ```
 
-**3.4. Deploying a certain container (useful when adding new apps to the pipeline such as Bazarr)**
+**3.4. Deploying a certain container (useful when adding new apps to the pipeline such as Bazarr)**<br> 
 NOTE: pull in docker means to update and download the latest version of the container image.
 ```
 docker compose pull bazarr 
@@ -322,7 +324,7 @@ Check logs of a container
 sudo docker logs container_name
 ```
 
-**3.5. Permission for containers to read, write, and execute**
+**3.5. Permission for containers to read, write, and execute**<br>
 **Container Default User** is '1000:1000' 
 **775** - 7-owner, 7-groups, 5-others, where **7**=can read, write, & exe while **5**=read and exe only
 ```
@@ -367,6 +369,7 @@ Settings -> Select Apps -> Add (Radarr and Sonarr) -> fill the following fields:
 * Authentication : Forms (login page)
 * Server address = url with the port eg. 192.168.1.2:8989 (Radarr).
 * API keys= API keys can be found in settings/General in the respective apps.
+* Bazarr(link to radarr and sonarr)= Add API keys from Radarr and sonarr into Bazarr settings to establish connection. More info see: https://wiki.bazarr.media/Getting-Started/First-time-installation-configuration/
 
 **4.3.2 Linking to qbittorrent**
 Settings/Download Clients -> Select qbittorrent -> include the following:
