@@ -304,6 +304,13 @@ services:
 sudo docker-compose up -d 
 ```
 
+**3.4. Deploying a certain container (useful when adding new apps to the pipeline such as Bazarr)**
+NOTE: pull in docker means to update and download the latest version of the container image.
+```
+docker compose pull bazarr 
+docker compose up -d bazarr
+```
+
 **Some tips for troubleshooting:**
 Check on status of containers
 ```
