@@ -19,6 +19,7 @@ Secondly, the objective of this readme is to provide a step-by-step instructions
 * Prowlarr - indexers management app
 * Sonarr - tv-show query + downloads
 * Radarr - movies query + downloads
+* Bazarr - subtitles tracker and downloads
 * qBittorrent - access to ocean feature
 * Homarr - GUI Dashboard for monitoring docker containers
 * OpenVPN - To establish secured private conenction between containers and traffic from the internet.
