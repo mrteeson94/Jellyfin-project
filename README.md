@@ -382,7 +382,8 @@ Settings -> Select Apps -> Add (Radarr and Sonarr) -> fill the following fields:
 * Authentication : Forms (login page)
 * Server address = url with the port eg. 192.168.1.2:8989 (Radarr).
 * API keys= API keys can be found in settings/General in the respective apps.
-* Bazarr(link to radarr and sonarr)= Add API keys from Radarr and sonarr into Bazarr settings to establish connection. More info see: https://wiki.bazarr.media/Getting-Started/First-time-installation-configuration/
+* Bazarr (link to radarr and sonarr)= Add API keys from Radarr and sonarr into Bazarr settings to establish connection. More info see: https://wiki.bazarr.media/Getting-Started/First-time-installation-configuration/
+* Add flaresolverr in Prowlarr - Settings ->Indexers -> '+' -> flaresolverr. Set Tag field = 'cloudflare' and Host = 'http://flaresolverr:8191'. Note you will need to add the tag 'cloudflare' to indexers that has cloudflare protectiont to help bypass.
 
 **4.3.2 Linking to qbittorrent**
 Settings/Download Clients -> Select qbittorrent -> include the following:
