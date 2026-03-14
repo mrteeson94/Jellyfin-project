@@ -23,7 +23,7 @@ Secondly, the objective of this readme is to provide a step-by-step instructions
 * qBittorrent - access to ocean feature
 * Homarr - GUI Dashboard for monitoring docker containers
 * OpenVPN - To establish secured private conenction between containers and traffic from the internet.
-
+* flaresolverr - To increase chances for prowlarr to bypass cloudflare to reach certain indexes.
 ## Current Roadblock
 Container config issues with deployment for:
 * nginx - mime.types syntax issue
@@ -300,6 +300,18 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Australia/Sydney
+    
+    flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    ports:
+      - "8191:8191"
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=Australia/Sydney
+    restart: unless-stopped
 ```
 
 **3.4. Deploying the containers**
