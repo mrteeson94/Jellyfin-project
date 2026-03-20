@@ -555,14 +555,14 @@ docker compose restart jellyfin      # Restart your jellyfin container which sho
 </details>
 
 <details>
-  <summary>Step 7 - Remote Access</summary>
+  <summary>Step 7 - Remote Access</summary><br>
 
 **7.1 Why Tailscale?**
 
-*What is Tailscale?*
+*What is Tailscale?*<br>
 It's a private VPN that connects your devices into one network for you to acess them anywhere without exposing them to the public internet. This is possible via an encrypted tunnel between your device and your hosted server.
 
-*How does Tailscale work?*
+*How does Tailscale work?*<br>
 When you install Tailscale on a nominated device:
 1.Your device joins a private network (called a tailnet).
 2.Each added device gets a private IP address (like 100.x.x.10).
@@ -596,20 +596,25 @@ tailscale status
 tailscale ip -4
 ```
 On the Tailscale console (web app) - Add all your devices you would like to the network. 
-* You can send invites to other users to join the network.
+* You can send invites to other users to join the network.<br>
 **Important note** - You should set a user role to limit access to only the jellyfin server and admin roles for other users.
 
-**7.4 Accessing Jellyfin**
+---
+
+**7.3 Accessing Jellyfin**
 
 Once connected to Tailscale, access Jellyfin via:
 ```
 http://YOUR_TAILSCALE_IP:[JellyfinPort] # Example 127.0.0.1:8096
 ```
-**7.6 Security Notes**
+---
+
+**7.4 Security Notes**
 * No services are exposed publicly
 * Only devices in your Tailscale network can connect
 * Enable 2FA on your Tailscale account
 * Regularly review connected devices via logs
 * Set Access controls for all users.
 
+**Happy streaming** 📺✈️💻
 </details>
