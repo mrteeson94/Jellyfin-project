@@ -161,6 +161,7 @@ sudo chown -R $USER:$USER /mount/NAS_Server
 <details>
 
 <summary> Step 3 - Deploy Jellyfin Pipeline Containers </summary>
+
 We will use a docker-compose.yml file to simplify the deployment and management of all containers. 
 Using Compose ensures that all container settings, volumes, and dependencies are centrally managed.
 
@@ -352,6 +353,7 @@ sudo chmod -R 775 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/NAS_Se
   <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, Radarr, & Bazarr</summary>
 
 **4.1 Set up qBittorrent** 
+
 qBittorrent container running for the first time will generate a random password for the container. - To see both the username and password details for qbittorrent follow the steps below.
 ```
 docker logs <container_name> #example docker logs qbittorrent
@@ -553,8 +555,61 @@ docker compose restart jellyfin      # Restart your jellyfin container which sho
 </details>
 
 <details>
-  <summary>Step 7 - Remote Access (WIP)</summary>
-* nginx 
-* certbot
-* duckdns
+  <summary>Step 7 - Remote Access</summary>
+
+**7.1 Why Tailscale?**
+
+*What is Tailscale?*
+It's a private VPN that connects your devices into one network for you to acess them anywhere without exposing them to the public internet. This is possible via an encrypted tunnel between your device and your hosted server.
+
+*How does Tailscale work?*
+When you install Tailscale on a nominated device:
+1.Your device joins a private network (called a tailnet).
+2.Each added device gets a private IP address (like 100.x.x.10).
+3.Devices can talk to each other directly and securely.
+
+Benefits:
+* No port forwarding required
+* Secure access from anywhere
+* Devices must be authenticated to connect
+* Works across mobile and desktop
+
+---
+
+**7.2 Install Tailscale on Linux Server**
+
+Install Tailscale:
+```
+curl -fsSL https://tailscale.com/install.sh| sh
+```
+
+Start and authenticate:
+```
+sudo tailscale up
+```
+* Open the login URL shown in terminal
+* Sign in and approve the device
+
+To Verify if the VPN is up:
+```
+tailscale status
+tailscale ip -4
+```
+On the Tailscale console (web app) - Add all your devices you would like to the network. 
+* You can send invites to other users to join the network.
+**Important note** - You should set a user role to limit access to only the jellyfin server and admin roles for other users.
+
+**7.4 Accessing Jellyfin**
+
+Once connected to Tailscale, access Jellyfin via:
+```
+http://YOUR_TAILSCALE_IP:[JellyfinPort] # Example 127.0.0.1:8096
+```
+**7.6 Security Notes**
+* No services are exposed publicly
+* Only devices in your Tailscale network can connect
+* Enable 2FA on your Tailscale account
+* Regularly review connected devices via logs
+* Set Access controls for all users.
+
 </details>
