@@ -6,6 +6,8 @@ Purpose of this project is to provide a 'One For All' streaming service for my f
 
 Secondly, the objective of this readme is to provide a step-by-step instructions to replicate the deployment of the infrastructure and used as a guide for troubleshooting.
 
+---
+
 ## Technology Stack
 **Server**
 * OS - Ubuntu Desktop
@@ -19,11 +21,14 @@ Secondly, the objective of this readme is to provide a step-by-step instructions
 * Prowlarr - indexers management app
 * Sonarr - tv-show query + downloads
 * Radarr - movies query + downloads
-* Bazarr - subtitles tracker and downloads
+* Bazarr - Subtitle tracker and downloader
 * qBittorrent - access to ocean feature
-* Homarr - GUI Dashboard for monitoring docker containers
-* OpenVPN - To establish secured private conenction between containers and traffic from the internet.
-* flaresolverr - To increase chances for prowlarr to bypass cloudflare to reach certain indexes.
+* Homarr - GUI dashboard for monitoring Docker containers
+* OpenVPN - Secure private connection between containers and internet traffic
+* flaresolverr - Helps Prowlarr bypass Cloudflare protection
+
+---
+
 ## Current Roadblock
 Container config issues with deployment for:
 * nginx - mime.types syntax issue
@@ -32,46 +37,50 @@ Container config issues with deployment for:
 **Current status of project**: 
 * Able to stream within local network only, until nginx and certbot issue is resolved. 
 * 2026 - Added Bazarr to automate ENG subtitles for all movies & shows.
+* 2026 Mar- Added Tailscale to allow remote access to jellyfin server from anywhere in the world.
 
+---
 
 ## Lets get started!
-**NOTE** - Please change naming of files and dir for security reasons.
+
+**NOTE** - Please change your naming of files and directories for security reasons. I have set generic pathing to be used as examples only.
+
 <details>
 <summary>Step 1 - Setting up Docker</summary>
 
 **1.1 Update package list**
 ```
- sudo apt update
+sudo apt update
 ```
 
-**1.2. Install prerequisites**
+**1.2 Install prerequisites**
 ```
- sudo apt install -y ca-certificates curl gnupg
+sudo apt install -y ca-certificates curl gnupg
 ```
 
-**1.3. Adding Docker's official GPG key**
+**1.3 Add Docker GPG key**
 ```
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 ```
 
-**1.4. Setup Docker repo**
+**1.4 Setup Docker repo**
 ```
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-**1.5. Install docker engine**
+**1.5 Install Docker engine**
 ```
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-**1.6. Verify Installation**
+**1.6 Verify installation**
 ```
- docker --version
+docker --version
 ```
 
-**1.7. Install software packages on docker**
+**1.7 Pull required images**
 ```
 docker pull jellyfin/jellyfin:latest
 docker pull lscr.io/linuxserver/prowlarr:latest
@@ -81,113 +90,103 @@ docker pull lscr.io/linuxserver/qbittorrent:latest
 docker pull kylemanna/openvpn-client:latest
 ```
 
-**1.8. Confirm pulled images**
+**1.8 Confirm images**
 ```
 docker images
 ```
 </details>
 
 <details>
-
 <summary>Step 2 - Mount Synology NAS to Server</summary>
 
-**2.1. Installing 'cifs-utils' for SMB support in files sharing with the NAS.**
+**2.1 Install cifs-utils**
 ```
- sudo apt install -y cifs-utils
-
+sudo apt install -y cifs-utils
 ```
 
-**2.2. Creating the Mount Points**
+**2.2 Create mount points**
 ```
 sudo mkdir -p /mount/NAS_Server/Movies
 sudo mkdir -p /mount/NAS_Server/Shows
 sudo mkdir -p /mount/NAS_Server/Download
 ```
 
-**2.3. Mount the NAS**
-**NOTE**
+**2.3 Mount NAS**
+**NOTE**<br>
 NAS_IP= your external storage device private IPv4
 your_username & your_password = local user/admin credentials of the storage device
-
 ```
 sudo mount -t cifs //NAS_IP/NAS_Server/Movies /mount/NAS_Server/Movies -o username=your_username,password=your_password
-
 sudo mount -t cifs //NAS_IP/NAS_Server/Shows /mount/NAS_Server/Shows -o username=your_username,password=your_password
-
 sudo mount -t cifs //NAS_IP/NAS_Server/Download /mount/NAS_Server/Download -o username=your_username,password=your_password
 ```
 
-2.4 Verify the Mounts are Present
+**2.4 Verify mounts**
 ```
 df -h
 ```
 
-**2.5 Persist Mounts across Reboots**
-edit the 'fstab.bak' file to automatically mount the fodlers after a reboot of the server. 
+**2.5 Persist mounts**<br>
+edit the 'fstab.bak' file to automatically mount the folders after a reboot of the server. 
 ```
- sudo cp /etc/fstab /etc/fstab.bak
- sudo nano /etc/fstab
+sudo cp /etc/fstab /etc/fstab.bak
+sudo nano /etc/fstab
 ```
 
-Add the following within the fstab file (can add anywhere):
-**NOTE**
-your_username & your_password = relates to the user credential of the storage device
+Add within fstab file:<br>
+**NOTE** your_username & your_password = relates to the user credential of the storage device
+
 ```
 //NAS_IP/NAS_Server/Movies /mount/NAS_Server/Movies cifs username=your_username,password=your_password,iocharset=utf8 0 0
 //NAS_IP/NAS_Server/Shows /mount/NAS_Server/Shows cifs username=your_username,password=your_password,iocharset=utf8 0 0
 //NAS_IP/NAS_Server/Download /mount/NAS_Server/Download cifs username=your_username,password=your_password,iocharset=utf8 0 0
 ```
 
-2.6. Verify fstab and Mounts
-
+**2.6 Apply mounts**
 ```
- sudo mount -a
+sudo mount -a
 ```
 
-check mounts
+**2.7 Check mounts**
 ```
 ls /mount/NAS_Server/Movies
 ls /mount/NAS_Server/Shows
 ls /mount/NAS_Server/Download
 ```
-
-**2.7. Permission Update on Mounts**
+**2.8 SET Permissions**
 ```
 sudo chmod -R 755 /mount/NAS_Server
 sudo chown -R $USER:$USER /mount/NAS_Server
 ```
 </details>
-
 <details>
 
-<summary> Step 3 - Deploy Jellyfin Pipeline Containers </summary>
+<summary> Step 3 - Deploy Jellyfin Pipeline Containers </summary><br>
 
 We will use a docker-compose.yml file to simplify the deployment and management of all containers. 
 Using Compose ensures that all container settings, volumes, and dependencies are centrally managed.
 
 **3.1. Create container directory and open dir**
 ```
-sudo -p mkdir ~/container-pipeline/ && cd ~/container-pipeline/
+sudo mkdir -p  ~/container-pipeline/ && cd ~/container-pipeline/
 ```
 
 **3.2. Install docker-compose**
 ```
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-```
-Set executable Permission
-```
-sudo chmod +x /usr/local/bin/docker-compose
-```
-Verify install
-```
-docker-compose --version
-```
-pull required images
-```
-sudo docker-compose pull
+
+#Set executable Permission
+sudo chmod +x /usr/local/bin/docker-compose   
+
+#Verify install
+docker-compose --version                      
+
+#pull required images
+sudo docker-compose pull                      
+
 ```
 
-**3.3. Create docker-compose file**
+**3.3. Create docker-compose file**<br>
 Docker-compose file is used when a docker container is deployed as it houses all the container's configuration.  
 ```
 sudo nano docker-compose.yml
@@ -294,8 +293,8 @@ services:
       - "6767:6767"
     volumes:
       - ~/jellyfin-pipeline/bazarr:/config
-      - /mnt/Media_Server/Shows:/shows
-      - /mnt/Media_Server/Movies:/movies
+      - /mnt/NAS_Server/Shows:/shows
+      - /mnt/NAS_Server/Movies:/movies
     restart: unless-stopped
     environment:
       - PUID=1000
@@ -327,14 +326,12 @@ docker compose pull bazarr
 docker compose up -d bazarr
 ```
 
-**Some tips for troubleshooting:**
-Check on status of containers
+**Some tips for troubleshooting:**<br>
 ```
+#Check on status of containers
 sudo docker ps
-```
 
-Check logs of a container
-```
+#Check logs of a container
 sudo docker logs container_name
 ```
 
@@ -350,9 +347,9 @@ sudo chmod -R 775 /mount/NAS_Server/Movies /mount/NAS_Server/Shows /mount/NAS_Se
 </details>
 
 <details>
-  <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, Radarr, & Bazarr</summary>
+  <summary>Step 4 - Setting up Jellyfin, Prowlarr, Sonarr, Radarr, & Bazarr</summary><br>
 
-**4.1 Set up qBittorrent** 
+**4.1 Set up qBittorrent** <br>
 
 qBittorrent container running for the first time will generate a random password for the container. - To see both the username and password details for qbittorrent follow the steps below.
 ```
@@ -379,7 +376,7 @@ http://<server_IP>:9696
 ```
 **4.3.1 Create your username and password**
 
-**4.3.1 Linking with Radarr, Sonarr**
+**4.3.1 Linking with Radarr, Sonarr**<br>
 Settings -> Select Apps -> Add (Radarr and Sonarr) -> fill the following fields:
 * Authentication : Forms (login page)
 * Server address = url with the port eg. 192.168.1.2:8989 (Radarr).
@@ -387,25 +384,25 @@ Settings -> Select Apps -> Add (Radarr and Sonarr) -> fill the following fields:
 * Bazarr (link to radarr and sonarr)= Add API keys from Radarr and sonarr into Bazarr settings to establish connection. More info see: https://wiki.bazarr.media/Getting-Started/First-time-installation-configuration/
 * Add flaresolverr in Prowlarr - Settings ->Indexers -> '+' -> flaresolverr. Set Tag field = 'cloudflare' and Host = 'http://flaresolverr:8191'. Note you will need to add the tag 'cloudflare' to indexers that has cloudflare protectiont to help bypass.
 
-**4.3.2 Linking to qbittorrent**
+**4.3.2 Linking to qbittorrent**<br>
 Settings/Download Clients -> Select qbittorrent -> include the following:
 * Host = linux server
 * Port = default is 8080 
 * Username = qbittorrent user 
 * Password = qbittorrent password
 
-**4.4 Setting up Radarr and Sonarr**
+**4.4 Setting up Radarr and Sonarr**<br>
 Both services' setup will be identical so I will only focus on Sonarr here.
 ```
 http://<server_IP>:7878 # Radarr
 http://<server_IP>:8989 # Sonarr
 ```
 
-**4.4.1 Adding Root folder and setup login page**
+**4.4.1 Adding Root folder and setup login page**<br>
 Within Settings/Media Management -> Root folders (add Root Folder) → in the main directory opened, select /movies.
 General settings - within the Authentication field select Forms (login page).
 
-**4.4.2 Adding Download Clients (qBittorrent)**
+**4.4.2 Adding Download Clients (qBittorrent)**<br>
 Under Download Clients select the add icon -> select qBittorrent -> fill the following fields:
 * Host = linux server
 * Port = default is 8080 
@@ -414,12 +411,12 @@ Under Download Clients select the add icon -> select qBittorrent -> fill the fol
 * Hit the test button and then Save. 
 **Note**: Any error displayed will indicate which field(s) you have incorrectly filled out and will be useful for troubleshooting. 
 
-**Troubleshooting**
-If there are permission issues with accessing root folders, try the following:
-**1. Does the container user have same permission as host user?**
+**Troubleshooting**<br>
+If there are permission issues with accessing root folders, try the following:<br>
+**1. Does the container user have same permission as host user?**<br>
 * open and edit your Docker-compose.yml file.
 * Within the service sector **add user : "1000:1000"** to set container user to host admin and match same permissions to read, write or execute.
-**NOTE** - defualt user ID is 1000 (most admins).
+**NOTE** - defualt user ID is 1000 (most admins).<br>
 *Example*
 ```
 homarr: 
@@ -446,48 +443,9 @@ If your user/admin name doesnt appear and **root** is present you will need to u
 </details>
 
 <details>
-  <summary>Step 5 - Security</summary>
+  <summary>Step 5 - Updating Container Images</summary><br>
 
-**5.1 Firewall setup**
-
-Firewall Configuration
-Install ufw (Uncomplicated Firewall):
-```
-sudo apt update
-sudo apt install ufw
-```
-
-Allow Only Required Ports:
-```
-sudo ufw allow 22/tcp   # For SSH
-sudo ufw allow 80/tcp # For HTTP
-sudo ufw allow 443/tcp # For HTTPS
-sudo ufw allow 8096/tcp # Jellyfin
-sudo ufw allow 9696/tcp # prowlarr
-sudo ufw allow 8989/tcp # radarr
-sudo ufw allow 7878/tcp # sonarr
-sudo ufw allow 7575/tcp # homarr
-sudo ufw allow 8080/tcp # qBittorrent
-sudo ufw allow 6881/udp # qBittorrent
-sudo ufw allow 1194/udp # OpenVPN
-sudo ufw enable
-```
-
-Check Firewall Status:
-```
-sudo ufw status
-```
-
-**5.2 fail2ban setup (WIP)**
-
-**5.3 nginx and certbot setup (WIP)**
-
-</details>
-
-<details>
-  <summary>Step 6 - Updating Container Images</summary>
-
-**6.1 Pulling in updates for Containers**
+**5.1 Pulling in updates for Containers**<br>
 Overtime the software will require updates, apply the following command to download the update for the container without stopping it:
 
 ```
@@ -496,7 +454,7 @@ sudo docker-compose pull radarr sonarr prowlarr jellyfin
 
 ```
 
-**6.2 Restarting with the updated image**
+**5.2 Restarting with the updated image**
 
 Restart the containers to apply the latest image version(this will stop affected services):
 ```
@@ -504,7 +462,7 @@ sudo docker-compose up -d radarr sonarr prowlarr jellyfin
 docker ps
 ```
 
-**6.3 Watchtower Setup for automation (Optional & WIP):**
+**5.3 Watchtower Setup for automation (Optional & WIP):**
 
 WatchTower - Checks for updated docker images, gracefully shuts down running containers and restarts them while preserving all data and config.
 Apply the following to your docker-compose file:
@@ -536,7 +494,7 @@ sudo docker-compose up -d watchtower
 sudo docker exec watchtower watchtower --run-once #To test first before committing. 
 sudo docker logs -f watchtower #To view log files from this container.
 ```
-**6.4 Mount missing Jellyfin docker due to NAS reboots (power outage experience):**
+**5.4 Mount missing Jellyfin docker due to NAS reboots (power outage experience):**
 
 WatchTower - On power outage from natural cause or NBN technicans, I have to manually mount my NAS drives back to the server.
 Apply the following in your jellyfin-pipeline folder:
@@ -544,7 +502,7 @@ Apply the following in your jellyfin-pipeline folder:
 ping 192.168.1.100                   # NAS_IPv4 
 df -h | grep Media                   # Verify if the mounts are present on your server
 cat /etc/fstab | grep -i media       # Verify if fstab config file is presesnt
-sudo mkdir -p /mnt/Media_Server/Movies /mnt/Media_Server/Shows /mnt/Media_Server/Download      # creates mount points that has been mapped in docker-compose
+sudo mkdir -p /mnt/NAS_Server/Movies /mnt/NAS_Server/Shows /mnt/NAS_Server/Download      # creates mount points that has been mapped in docker-compose
 sudo mount -a                        # Mounts all drives defined in /fstab
 df -h | grep Media                   # To verify mounts are present
 docker compose restart jellyfin      # Restart your jellyfin container which should now have access to the Media files in your NAS
@@ -555,9 +513,9 @@ docker compose restart jellyfin      # Restart your jellyfin container which sho
 </details>
 
 <details>
-  <summary>Step 7 - Remote Access</summary><br>
+  <summary>Step 6 - Remote Access</summary><br>
 
-**7.1 Why Tailscale?**
+**6.1 Why Tailscale?**
 
 *What is Tailscale?*<br>
 It's a private VPN that connects your devices into one network for you to acess them anywhere without exposing them to the public internet. This is possible via an encrypted tunnel between your device and your hosted server.
@@ -576,7 +534,7 @@ Benefits:
 
 ---
 
-**7.2 Install Tailscale on Linux Server**
+**6.2 Install Tailscale on Linux Server**
 
 Install Tailscale:
 ```
@@ -601,7 +559,7 @@ On the Tailscale console (web app) - Add all your devices you would like to the 
 
 ---
 
-**7.3 Accessing Jellyfin**
+**6.3 Accessing Jellyfin**
 
 Once connected to Tailscale, access Jellyfin via:
 ```
@@ -609,7 +567,7 @@ http://YOUR_TAILSCALE_IP:[JellyfinPort] # Example 127.0.0.1:8096
 ```
 ---
 
-**7.4 Security Notes**
+**6.4 Security Notes**
 * No services are exposed publicly
 * Only devices in your Tailscale network can connect
 * Enable 2FA on your Tailscale account
