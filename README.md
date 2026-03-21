@@ -576,13 +576,50 @@ http://YOUR_TAILSCALE_IP:[JellyfinPort] # Example 127.0.0.1:8096
 
 **Happy streaming** 📺✈️💻
 </details>
+
 <details>
   <summary>Step 7 - Automation</summary><br>
 
-**7.1 Jellyseerr**
-*WIP* 
-- With remote access, can now allow users to request movies/tv shows.
-- This fixes manual addition of titles on radarr, & sonarr  
-- Helps non-IT family members and friends from using the jellyfin/jellyseer pipeline services.
+**7.1 Why Jellyseerr?**
+
+*What is Jellyseerr?*<br>
+Jellyseerr is a request management app that lets users search and request movies or TV shows from a simple web interface. It connects with Sonarr and Radarr to automate the process of adding requested content into your Jellyfin pipeline.
+
+*Why use Jellyseerr?*<br>
+Without Jellyseerr, you would need to manually add movies and shows directly into Radarr or Sonarr. Jellyseerr makes this easier by giving both you and other users a more friendly way to request content.
+
+Benefits:
+* Simple request interface for movies and TV shows
+* Reduces manual work in Sonarr and Radarr
+* Easier for non-technical users to use
+* Can be linked with Jellyfin user accounts
+* Keeps requests organised in one place
+
+---
+
+**7.2 Add Jellyseerr to Docker Compose**
+
+Add the following container to your `docker-compose.yml`:
+
+```yaml
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    ports:
+      - "5055:5055"
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Australia/[city]
+    volumes:
+      - ~/jellyfin-pipeline/jellyseerr:/app/config
+    restart: unless-stopped
+#
+Start the container:
+docker compose up -d
+docker ps
+'''
+
+**WIP**
+---
 
 </details>
