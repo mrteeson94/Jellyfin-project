@@ -576,3 +576,13 @@ http://YOUR_TAILSCALE_IP:[JellyfinPort] # Example 127.0.0.1:8096
 
 **Happy streaming** 📺✈️💻
 </details>
+<details>
+  <summary>Step 7 - Automation</summary><br>
+
+**7.1 Jellyseerr**
+*WIP* 
+- With remote access, can now allow users to request movies/tv shows.
+- This fixes manual addition of titles on radarr, & sonarr  
+- Helps non-IT family members and friends from using the jellyfin/jellyseer pipeline services.
+
+</details>
