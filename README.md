@@ -24,15 +24,15 @@ Secondly, the objective of this readme is to provide a step-by-step instructions
 * Bazarr - Subtitle tracker and downloader
 * qBittorrent - access to ocean feature
 * Homarr - GUI dashboard for monitoring Docker containers
-* OpenVPN - Secure private connection between containers and internet traffic
+* jellyseerr - 
 * flaresolverr - Helps Prowlarr bypass Cloudflare protection
 
 ---
 
 ## Current Roadblock
 Container config issues with deployment for:
-* nginx - mime.types syntax issue
-* Certbot - [Errno 13] Permission denied: '/var/log/letsencrypt/.certbot.lock
+* nginx - mime.types syntax issue (resolved)
+* Certbot - [Errno 13] Permission denied: '/var/log/letsencrypt/.certbot.lock (resolved)
 
 **Current status of project**: 
 * Able to stream within local network only, until nginx and certbot issue is resolved. 
@@ -272,19 +272,6 @@ services:
       - VPN_PROVIDERS= your_provider #Example OpenVPN, ExpressVPN, PIA, etc.
       - VPN_USERNAME=your_vpn_username
       - VPN_PASSWORD=your_vpn_password
-
-  openvpn:
-    image: kylemanna/openvpn
-    container_name: openvpn
-    cap_add:
-      - NET_ADMIN
-    ports:
-      - "1194:1194/udp"
-    volumes:
-      - ~/jellyfin-pipeline/openvpn:/etc/openvpn
-    restart: unless-stopped
-    environment:
-      - TZ=Australia/Sydney
       
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -310,6 +297,19 @@ services:
       - LOG_LEVEL=info
       - LOG_HTML=false
       - CAPTCHA_SOLVER=none
+      - TZ=Australia/Sydney
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    ports:
+      - "5055:5055"
+    volumes:
+      - ~/jellyfin-pipeline/jellyseerr:/app/config
+    environment:
+      - PUID=1000
+      - PGID=1000
       - TZ=Australia/Sydney
     restart: unless-stopped
 ```
@@ -617,9 +617,39 @@ Add the following container to your `docker-compose.yml`:
 Start the container:
 docker compose up -d
 docker ps
-'''
+```
 
-**WIP**
+**7.3 Access Jellyseerr Web UI and setup**<br>
+
+Open Jellyseerr in your browser:
+```
+http://YOUR_SERVER_IP:5055
+```
+On first launch, Jellyseerr will guide you through setup in the web UI.
+
+Configure the following:
+1. Sign in with your Jellyfin admin account
+2. Connect Jellyfin as the media server
+3. Connect Radarr for movies using API key from Radarr
+4. Connect Sonarr for TV shows using API key from Sonarr
+5. Set the default root folders
+6. Set quality profiles
+7. Choose approval settings for users (admin and users)<br>
+**Important note** - Make sure the root folders and quality profiles selected in Jellyseerr match the ones already configured in Radarr and Sonarr.
+
 ---
 
+**7.4 How the Request Flow Works**<br>
+
+Once setup is complete, the request flow is:
+
+1.User requests a movie or TV show in Jellyseerr  
+2.Jellyseerr sends the request to Radarr or Sonarr  
+3.Radarr or Sonarr searches through your indexers  
+4.The download client grabs the file  
+5.Jellyfin picks up the media once imported  
+6.Sit back and relax!
+
+
+**Happy streaming** 🎬📺⚙️
 </details>
