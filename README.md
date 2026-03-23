@@ -613,8 +613,7 @@ Add the following container to your `docker-compose.yml`:
     volumes:
       - ~/jellyfin-pipeline/jellyseerr:/app/config
     restart: unless-stopped
-#
-Start the container:
+#Start the container:
 docker compose up -d
 docker ps
 ```
