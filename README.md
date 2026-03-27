@@ -49,6 +49,10 @@ Container config issues with deployment for:
     * Homarr for service visibility and centralised control
     * Dozzle for real-time container log monitoring
   * Implemented Watchtower to maintain up-to-date containers and improve overall system security (basic hardening)
+* **2026 (Jan – Present) – Accessibility & User Experience Improvements**
+  * Integrated Bazarr to automate English subtitle management across all movies and shows.
+  * Implemented Tailscale to enable secure remote access to the Jellyfin server from anywhere.
+  * Deployed Jellyseerr to streamline media requests, replacing manual additions via *arr services.
 ---
 
 ## Lets get started!
