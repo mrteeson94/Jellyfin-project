@@ -24,7 +24,7 @@ Secondly, the objective of this readme is to provide a step-by-step instructions
 * Bazarr - Subtitle tracker and downloader
 * qBittorrent - access to ocean feature
 * Homarr - GUI dashboard for monitoring Docker containers
-* jellyseerr - 
+* jellyseerr - User friendly GUI management and media discovery tool for jellyfin ecosystem.
 * flaresolverr - Helps Prowlarr bypass Cloudflare protection
 
 ---
@@ -32,13 +32,23 @@ Secondly, the objective of this readme is to provide a step-by-step instructions
 ## Current Roadblock
 Container config issues with deployment for:
 * nginx - mime.types syntax issue (resolved)
-* Certbot - [Errno 13] Permission denied: '/var/log/letsencrypt/.certbot.lock (resolved)
+* Certbot - [Errno 13] Permission denied: '~/log/letsencrypt/.certbot.lock (resolved)
+* 2026 Shows/movies downloaded from the Jellyfin ecosystem should be optimised:
+    * 1080p video files should be under 10GB
+    * 2K video files should be under 20GB
+    * Subtitles should be in English (ENG) and match the FPS of the media
 
 **Current status of project**: 
-* Able to stream within local network only, until nginx and certbot issue is resolved. 
-* 2026 - Added Bazarr to automate ENG subtitles for all movies & shows.
-* 2026 Mar- Added Tailscale to allow remote access to jellyfin server from anywhere in the world.
-
+* 2024 November - Jellyfin ecosystem deployed and running. 
+* 2025 entire year - Focused on optimising the Jellyfin pipeline through fine-tuning *arr configurations.
+  * Evaluated and experimented with additional microservices:
+    * Watchtower (automated container updates)
+    * OpenVPN (secure network access)
+    * Nginx + Certbot (reverse proxy with SSL)
+  * Introduced monitoring and observability tools:
+    * Homarr for service visibility and centralised control
+    * Dozzle for real-time container log monitoring
+  * Implemented Watchtower to maintain up-to-date containers and improve overall system security (basic hardening)
 ---
 
 ## Lets get started!
