@@ -159,7 +159,10 @@ Add within fstab file:<br>
 **2.6 Apply mounts**
 ```
 sudo mount -a
+findmnt /mount/NAS_Server
+ls -lah /mount/NAS_Server
 ```
+
 
 **2.7 Check mounts**
 ```
@@ -171,6 +174,10 @@ ls /mount/NAS_Server/Download
 ```
 sudo chmod -R 755 /mount/NAS_Server
 sudo chown -R $USER:$USER /mount/NAS_Server
+
+#Restart Jellyfin docker stack if its running
+cd ~/jellyfin-pipeline
+docker compose restart
 ```
 </details>
 <details>
