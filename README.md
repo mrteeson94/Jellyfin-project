@@ -594,8 +594,6 @@ http://YOUR_TAILSCALE_IP:[JellyfinPort] # Example 127.0.0.1:8096
 * Enable 2FA on your Tailscale account
 * Regularly review connected devices via logs
 * Set Access controls for all users.
-
-**Happy streaming** 📺✈️💻
 </details>
 
 <details>
@@ -672,4 +670,178 @@ Once setup is complete, the request flow is:
 
 
 **Happy streaming** 🎬📺⚙️
+</details>
+
+<details>  
+
+<summary>Step 8 - 4K hardware transcoding Jellyfin</summary><br>
+
+Purpose of this step is to setup NVIDIA hardware acceleration for Jellyfin so the GPU handles 4K transcoding instead of the CPU.
+
+**8.1 Check Linux server hardware**
+
+```bash
+# Check CPU/GPU specs
+lscpu | grep -E "Model name|CPU\(s\)"
+lspci -nn | grep -Ei "3d|display|vga"
+```
+
+**8.2 NVIDIA container toolkit install**
+
+```bash
+# Check NVIDIA driver
+nvidia-smi
+
+# Only run if NVIDIA driver is not detected:
+sudo apt update
+sudo ubuntu-drivers install
+sudo reboot
+
+nvidia-smi
+
+# Setup toolkit prerequisites
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg2
+
+# Add NVIDIA repo key
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+# Add NVIDIA container toolkit repo
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update
+
+# Install toolkit
+sudo apt-get install -y nvidia-container-toolkit
+
+nvidia-ctk --version
+
+# Configure NVIDIA runtime for Docker
+sudo nvidia-ctk runtime configure --runtime=docker
+
+sudo systemctl restart docker
+
+# Check Docker runtime
+docker info | grep -i runtime
+
+# Test Docker GPU access
+docker run --rm --gpus all ubuntu nvidia-smi
+```
+
+**8.3 Docker-compose config**
+
+Update Jellyfin container so it can access the GPU.
+
+```yaml
+services:
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+
+    ports:
+      - "8096:8096"
+
+    volumes:
+      - /mnt/Movies:/media/movies:ro
+      - /mnt/NAS_Server/Shows:/media/shows:ro
+      - ~/jellyfin-pipeline/jellyfin-config:/config
+
+    runtime: nvidia
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    restart: unless-stopped
+```
+
+Double check Docker Compose before restarting Jellyfin:
+
+```bash
+docker compose config
+
+docker compose up -d jellyfin
+
+docker exec -it jellyfin nvidia-smi
+
+docker exec -it --user root jellyfin ldconfig
+```
+
+**8.4 Jellyfin transcoding settings**
+
+Update settings in Jellyfin Web UI:
+
+```text
+Dashboard
+→ Playback
+→ Transcoding
+```
+
+Set:
+
+```text
+Hardware acceleration: NVIDIA NVENC
+Enable hardware encoding
+Enable supported hardware decoding codecs
+```
+
+**8.5 Test 4K transcoding**
+
+Play a 4K video and lower playback quality, for example:
+
+```text
+4K Original
+→ 1080p 10 Mbps
+```
+
+Check Jellyfin Dashboard to confirm playback shows:
+
+```text
+Transcoding
+```
+
+Monitor GPU:
+
+```bash
+watch -n 1 nvidia-smi
+
+nvidia-smi dmon
+```
+
+Useful columns:
+
+```text
+enc = GPU encoding
+dec = GPU decoding
+```
+
+Check CPU usage:
+
+```bash
+htop
+```
+
+Check Jellyfin FFmpeg logs for transcoding speed:
+
+```text
+speed=9.25x
+```
+
+General guide:
+
+```text
+<1.0x   = too slow
+1.0x+   = playable
+2.0x+   = good
+5.0x+   = excellent
+```
+
 </details>
